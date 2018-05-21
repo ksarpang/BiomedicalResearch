@@ -1,0 +1,60 @@
+---
+title: "Title"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+# Describe the dataset
+
+```{r basal_lumA}
+
+# read data in
+file <- "basal_lumA.txt"
+header <- scan(file, nlines = 1, what = character())
+data <- read.table(file, skip = 2, header = FALSE, sep = "\t", quote = "", check.names=FALSE)
+names(data) <- header
+header2 <- scan(file, skip = 1, nlines = 1, what = character())
+
+
+dim(data) # describe dimensions of dataset
+head(data$id) # show column labeled “id” – gene names
+head(as.character(data$id)) # a better way to see genes
+head(data[data$id=="HIF3A",seq(1,10)]) # filter on a particular gene
+head(data[,c(6)]) # filter on a particular sample
+# In RStudio – “Environment tab” shows all currently initialized variables 
+# – click on the icon next to an entry to show a dataset
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r boxplot, echo=FALSE}
+
+LumA <- data[,header2=='LumA']
+Basal <- data[,header2=='Basal']
+
+HIF3A_cancer<-rbind(
+  cbind(t(LumA[data$id %in% c('HIF3A'),]),rep(1,ncol(LumA))),
+  cbind(t(Basal[data$id %in% c('HIF3A'),]),rep(0,ncol(Basal)))
+) 
+colnames(HIF3A_cancer)<-c("expression","cancer")
+
+boxplot(expression~cancer, HIF3A_cancer)
+
+```
+
+## Including tables
+
+```{r table, echo=FALSE}
+
+
+rownames(LumA) <- data$id
+table <- head(LumA[,c(1,2)],10)
+library(knitr)
+kable(table)
+
+```

@@ -1,0 +1,237 @@
+---
+title: "Project 2 *k*-means in Local Spark environment"
+author: "Kishan Sarpangala"
+output:
+  html_document: default
+  html_notebook: default
+---
+```{r setup}
+knitr::opts_chunk$set(echo = FALSE)
+# Setup
+library(sparklyr)
+library(dplyr)
+
+# local cluster
+
+sc <- spark_connect(master="local")
+#sc <- spark_connect(master="local",  version="2.2.0")
+```
+```{r read}
+# read data in as CSV
+pam50data_local <- spark_read_csv(sc, "pam50data_local", "/user/sarpankn/pam50_samples_t_w_type_3.csv")
+pam50data_local %>% count()
+pam50data_local
+```
+```{r cancer_type}
+## List number of samples by Cancer Type
+pam50data_local %>% group_by(CancerType) %>% summarize(count=n())
+```
+```{r Known_labels}
+## Create a dataset of samples with known cancer types only
+pam50data_local1 <- pam50data_local %>% filter(CancerType %in% c('Basal','Her2','LumA', 'LumB','Normal'))
+pam50data_local1
+colnames(pam50data_local1)
+```
+```{r Spark_kmeans_predictions5}
+# Train the k-means model on known labels and generate predictions using  clusters
+spark_kmeans5 <- ml_kmeans(pam50data_local1, ~ . - SampleID - CancerType, centers = 5)
+spark_predict5 <- ml_predict(spark_kmeans5, pam50data_local)
+predictions5 <- spark_predict5 %>% select(c(prediction,CancerType,SampleID))  %>% collect()  %>% mutate(cluster = as.factor(prediction), realtype=as.factor(CancerType))
+## Summary
+summary(predictions5)
+```
+```{r Majority_vote5}
+# evaluate Majority Vote
+predictions5 %>% group_by(prediction,CancerType) %>% summarize(count=n()) %>% arrange(prediction,CancerType) %>% collect()
+```
+```{r predictions5}
+# table
+table(predictions5$realtype, predictions5$prediction)
+```
+```{r Spark_kmeans_predictions6}
+# Train the k-means model on known labels and generate predictions using  clusters
+spark_kmeans6 <- ml_kmeans(pam50data_local1, ~ . - SampleID - CancerType, centers = 6)
+spark_predict6 <- sdf_predict(spark_kmeans6, pam50data_local)
+predictions6 <- spark_predict6 %>% select(c(prediction,CancerType,SampleID))  %>% collect()  %>% mutate(cluster = as.factor(prediction), realtype=as.factor(CancerType))
+## Summary
+summary(predictions6)
+```
+```{r Majority_vote6}
+# evaluate Majority Vote
+predictions6 %>% group_by(prediction,CancerType) %>% summarize(count=n()) %>% arrange(prediction,CancerType) %>% collect()
+```
+```{r predictions6}
+# table
+table(predictions6$realtype, predictions6$prediction)
+```
+```{r Spark_kmeans_predictions7}
+# Train the k-means model on known labels and generate predictions using  clusters
+spark_kmeans7 <- ml_kmeans(pam50data_local1, ~ . - SampleID - CancerType, centers = 7)
+spark_predict7 <- sdf_predict(spark_kmeans7, pam50data_local)
+predictions7 <- spark_predict7 %>% select(c(prediction,CancerType,SampleID))  %>% collect()  %>% mutate(cluster = as.factor(prediction), realtype=as.factor(CancerType))
+## Summary
+summary(predictions7)
+```
+```{r Majority_vote7}
+# evaluate Majority Vote
+predictions7 %>% group_by(prediction,CancerType) %>% summarize(count=n()) %>% arrange(prediction,CancerType) %>% collect()
+```
+```{r predictions7}
+# table
+table(predictions7$realtype, predictions7$prediction)
+```
+```{r Spark_kmeans_predictions8}
+# Train the k-means model on known labels and generate predictions using  clusters
+spark_kmeans8 <- ml_kmeans(pam50data_local1, ~ . - SampleID - CancerType, centers = 8)
+spark_predict8 <- sdf_predict(spark_kmeans8, pam50data_local)
+predictions8 <- spark_predict8 %>% select(c(prediction,CancerType,SampleID))  %>% collect()  %>% mutate(cluster = as.factor(prediction), realtype=as.factor(CancerType))
+## Summary
+summary(predictions8)
+```
+```{r Majority_vote8}
+# evaluate Majority Vote
+predictions8 %>% group_by(prediction,CancerType) %>% summarize(count=n()) %>% arrange(prediction,CancerType) %>% collect()
+```
+```{r predictions8}
+# table
+table(predictions8$realtype, predictions8$prediction)
+```
+```{r Spark_kmeans_predictions9}
+# Train the k-means model on known labels and generate predictions using  clusters
+spark_kmeans9 <- ml_kmeans(pam50data_local1, ~ . - SampleID - CancerType, centers = 9)
+spark_predict9 <- sdf_predict(spark_kmeans9, pam50data_local)
+predictions9 <- spark_predict9 %>% select(c(prediction,CancerType,SampleID))  %>% collect()  %>% mutate(cluster = as.factor(prediction), realtype=as.factor(CancerType))
+## Summary
+summary(predictions9)
+```
+```{r Majority_vote9}
+# evaluate Majority Vote
+predictions9 %>% group_by(prediction,CancerType) %>% summarize(count=n()) %>% arrange(prediction,CancerType) %>% collect()
+```
+```{r predictions9}
+# table
+table(predictions9$realtype, predictions9$prediction)
+```
+```{r Spark_kmeans_predictions10}
+# Train the k-means model on known labels and generate predictions using  clusters
+spark_kmeans10 <- ml_kmeans(pam50data_local1, ~ . - SampleID - CancerType, centers = 10)
+spark_predict10 <- sdf_predict(spark_kmeans10, pam50data_local)
+predictions10 <- spark_predict10 %>% select(c(prediction,CancerType,SampleID))  %>% collect()  %>% mutate(cluster = as.factor(prediction), realtype=as.factor(CancerType))
+## Summary
+summary(predictions10)
+```
+```{r Majority_vote10}
+# evaluate Majority Vote
+predictions10 %>% group_by(prediction,CancerType) %>% summarize(count=n()) %>% arrange(prediction,CancerType) %>% collect()
+```
+```{r predictions10}
+# table
+table(predictions10$realtype, predictions10$prediction)
+```
+```{r tables}
+
+table(predictions5$realtype, predictions5$prediction)
+table(predictions6$realtype, predictions6$prediction)
+table(predictions7$realtype, predictions7$prediction)
+table(predictions8$realtype, predictions8$prediction)
+table(predictions9$realtype, predictions9$prediction)
+table(predictions10$realtype, predictions10$prediction)
+
+# cluster 5
+# lumaA = 1+22+4/139+1+22+4, Her2 = 1+3+21/1+44+3+21, Basal = 1/73+1, lumA = 4+1+2+1/4+1+29+2+1, LumB = 2+30/2+30+56
+# lumA = (1+22+4)+(4+1+2+1)/(139+1+22+4)+(4+1+29+2+1)
+
+MissClassificationRate5Numerator =(1+22+4)+(4+1+2+1)+(1+3+21)+ 1+ (2+30)
+MissClassificationRate5Denominator =(139+1+22+4)+(4+1+29+2+1)+(1+44+3+21)+ (73+1)+(2+30+56)
+MissClassificationRate5 = MissClassificationRate5Numerator/MissClassificationRate5Denominator
+MissClassificationRate5
+
+# cluster 6
+#  Her2 = 3+20+27+4/28+3+20+27+4, LumA = 4+1+2+1/29+4+1+2+1, Her2 = 2+12/18+2+12, Basal = 1/72+64, LumB =18/18+41, 
+#  LumA = 19/19+132
+# 
+
+MissClassificationRate6Numerator =3+20+27+4+4+1+2+1+2+12+1+18+19
+MissClassificationRate6Denominator = 28+3+20+27+4+29+4+1+2+1+18+2+12+72+64+18+41+19+132
+MissClassificationRate6 = MissClassificationRate6Numerator/MissClassificationRate6Denominator
+MissClassificationRate6
+
+# cluster 7
+#  LumA = 1+4+2+1/28+1+4+2+1, LumA = 1+15+4/89+1+15+4, Her2 = 2+5+23/31+2+5+23, Basal = 1/72+1, LumB = 13/13+40, 
+#  LumA = 11/11+64, Her2 = 2+10/15+2+10
+#  
+# 
+
+MissClassificationRate7Numerator =1+4+2+1+1+15+4+2+5+23+1+13+11+2+10
+MissClassificationRate7Denominator = 28+1+4+2+1+89+1+15+4+31+2+5+23+72+1+13+40+11+64+15+2+10
+MissClassificationRate7 = MissClassificationRate7Numerator/MissClassificationRate7Denominator
+MissClassificationRate7
+
+# cluster 8
+#  Basal = 1/33+1, LumA = 1+15+4/88+1+15+4, LumA = 12/65+12, Her2 = 1+3+21/42+1+3+21, Basal = 0/19, 
+#  LumA = 3+1+2+1/30+3+1+2+1, LumB = 4+15/4+15+51, Basal = 0/22  
+#  
+# 
+
+MissClassificationRate8Numerator =1+1+15+4+12+1+3+21+0+3+1+2+1+4+15+0
+MissClassificationRate8Denominator = 33+1+88+1+15+4+65+12+42+1+3+21+19+30+3+1+2+1+4+15+51+22
+MissClassificationRate8 = MissClassificationRate8Numerator/MissClassificationRate8Denominator
+MissClassificationRate8
+
+
+# cluster 9
+#   Basal = 0/18, Her2 = 1+2+16/41+1+2+16, LumA = 10/20+10, LumA = 3+1+2/3+1+28+2, LumA = 2+5+5/75+2+5+5, LumA = 28/28+70,
+# LumB = 5+6/5+6+40, Basal = 1/1+19, Basal = 0/36
+#    
+#  
+# 
+
+MissClassificationRate9Numerator =0+1+2+16+10+3+1+2+2+5+5+28+5+6+1+0
+MissClassificationRate9Denominator = 18+41+1+2+16+20+10+3+1+28+2+75+2+5+5+28+70+5+6+40+1+19+36
+MissClassificationRate9 = MissClassificationRate9Numerator/MissClassificationRate9Denominator
+MissClassificationRate9
+
+
+# cluster 10
+#   LumA = 6+33+3/43+6+33+3, LumA = 3+1+2/3+1+2+24, Basal = 1/1+18, LumB = 3+15/3+15+49, Her2 = 2+10/36+2+10, LumA = 7/56+7
+#   LumA = 2/2+60, Basal = 1+1/8+1+1, Basal = 0/32, basal = 0/18  
+# 
+
+MissClassificationRate10Numerator = 6+33+3+3+1+2+1+3+15+2+10+7+2+1+1+0+0
+MissClassificationRate10Denominator = 43+6+33+3+3+1+2+24+1+18+3+15+49+36+2+10+56+7+2+60+8+1+1+32+18
+MissClassificationRate10 = MissClassificationRate10Numerator/MissClassificationRate10Denominator
+MissClassificationRate10
+```
+
+#MissClassificationRate5
+```{r result5}
+MissClassificationRate5
+```
+#MissClassificationRate6
+```{r result6}
+MissClassificationRate6
+```
+
+#MissClassificationRate7
+```{r result7}
+MissClassificationRate7
+```
+#MissClassificationRate8
+```{r result8}
+MissClassificationRate8
+```
+#MissClassificationRate9
+```{r result9}
+MissClassificationRate9
+```
+#MissClassificationRate10
+```{r result10}
+MissClassificationRate10
+```
+
+```{r prediction_1}
+table(predictions8$realtype, predictions8$prediction)
+```
+
+# Iteration k = 8, has better clustering result because it has the lowest misclassification rate among all "k values" 
+# Reassigning NAs to the respective cluster identities as done by majority vote thereof.

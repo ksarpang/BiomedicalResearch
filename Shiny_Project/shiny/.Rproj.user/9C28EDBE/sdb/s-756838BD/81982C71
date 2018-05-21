@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "\n# This is the server logic for a Shiny web application.\n# You can find out more about building applications with Shiny here:\n#\n# http://shiny.rstudio.com\n#\n\nlibrary(shiny)\n\nshinyServer(function(input, output, session) {\n\n  updateSelectInput(session, \"variable\", choices=colnames(faithful))\n  \n  output$view <- renderDataTable({ faithful })\n  \n  output$summary <- renderText({    paste(\"Selected \", input$variable)     }) \n  \n  output$distPlot <- renderPlot({\n\n    # generate bins based on input$bins from ui.R\n    if (input$variable != \"\") # initial value is empty -- we don't draw histogram when empty\n    {\n    x    <- faithful[, input$variable]\n    bins <- seq(min(x), max(x), length.out = input$bins + 1)\n\n    # draw the histogram with the specified number of bins\n    hist(x, breaks = bins, col = 'darkgray', border = 'white')\n    }\n\n  })\n  \n  output$distPlot2 <- renderPlot({\n    \n    # generate bins based on input$bins from ui.R\n    x    <- faithful[, 1]\n    bins <- seq(min(x), max(x), length.out = input$bins2 + 1)\n    \n    # draw the histogram with the specified number of bins\n    hist(x, breaks = bins, col = 'darkgray', border = 'white')\n    \n  })\n  \n  observe({\n    \n  updateSliderInput(session, \"bins2\", value=input$bins+5)\n  })\n\n})\n",
+    "created" : 1523563835308.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3047799530",
+    "id" : "81982C71",
+    "lastKnownWriteTime" : 1523568346,
+    "last_content_update" : 1523568426556,
+    "path" : "~/Documents/test11/server.R",
+    "project_path" : "server.R",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

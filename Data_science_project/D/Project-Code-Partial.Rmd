@@ -1,0 +1,195 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+
+#  All genes, 3-fold  
+her2_lumA <- read.delim("C:/Users/djghosh/Desktop/her2_lumA.txt", header=FALSE)
+View(her2_lumA)
+file <- "her2_lumA.txt"
+
+nfold <- 3
+
+header <- scan(file, nlines = 1, what = character())
+data <- read.table(file, skip = 2, header = FALSE, sep = "\t", quote = "", check.names=FALSE)
+names(data) <- header
+
+header2 <- scan(file, skip = 1, nlines = 1, what = character())
+
+LumA <- data[,header2=='LumA']
+Her2 <- data[,header2=='Her2']
+
+LumA <- data[data$id,header2=='LumA']
+Her2<-data[data$id,header2=='Her2']
+
+LumA_groups <- split(sample(colnames(LumA)), 1+(seq_along(colnames(LumA)) %% nfold))
+Her2_groups<- split(sample(colnames(Her2)), 1+(seq_along(colnames(Her2)) %% nfold))
+
+result <- array()
+
+for (test_group in 1:nfold) {
+testA<-LumA[,colnames(LumA)%in%unlist(LumA_groups[test_group])]
+testB<-Her2[,colnames(Her2)%in%unlist(Her2_groups[test_group])]
+
+trainingA<-LumA[,!(colnames(LumA)%in%unlist(LumA_groups[test_group]))]
+trainingB<-Her2[,!(colnames(Her2)%in%unlist(Her2_groups[test_group]))]
+
+centroidA<-rowMeans(trainingA)
+centroidB<-rowMeans(trainingB)
+
+misclassifiedA <- sum(sapply(testA, function(x){sqrt(sum((x-centroidA)^2))-sqrt(sum((x-centroidB)^2))>0 }))
+misclassifiedB<-sum(sapply(testB,function(x){sqrt(sum((x-centroidA)^2))-sqrt(sum((x-centroidB)^2))<0}))
+
+result[test_group]<-(misclassifiedA+misclassifiedB)/(ncol(testA)+ncol(testB))
+
+}
+mean(result)
+sd(result)
+```
+
+
+
+```{r}
+#  All genes, 10-fold cross-validation 
+her2_lumA <- read.delim("C:/Users/djghosh/Desktop/her2_lumA.txt", header=FALSE)
+View(her2_lumA)
+file <- "her2_lumA.txt"
+
+nfold <- 10
+
+header <- scan(file, nlines = 1, what = character())
+data <- read.table(file, skip = 2, header = FALSE, sep = "\t", quote = "", check.names=FALSE)
+names(data) <- header
+
+header2 <- scan(file, skip = 1, nlines = 1, what = character())
+
+LumA <- data[,header2=='LumA']
+Her2 <- data[,header2=='Her2']
+
+LumA <- data[data$id,header2=='LumA']
+Her2<-data[data$id,header2=='Her2']
+
+LumA_groups <- split(sample(colnames(LumA)), 1+(seq_along(colnames(LumA)) %% nfold))
+Her2_groups<- split(sample(colnames(Her2)), 1+(seq_along(colnames(Her2)) %% nfold))
+
+result <- array()
+
+for (test_group in 1:nfold) {
+testA<-LumA[,colnames(LumA)%in%unlist(LumA_groups[test_group])]
+testB<-Her2[,colnames(Her2)%in%unlist(Her2_groups[test_group])]
+
+trainingA<-LumA[,!(colnames(LumA)%in%unlist(LumA_groups[test_group]))]
+trainingB<-Her2[,!(colnames(Her2)%in%unlist(Her2_groups[test_group]))]
+
+centroidA<-rowMeans(trainingA)
+centroidB<-rowMeans(trainingB)
+
+misclassifiedA <- sum(sapply(testA, function(x){sqrt(sum((x-centroidA)^2))-sqrt(sum((x-centroidB)^2))>0 }))
+misclassifiedB<-sum(sapply(testB,function(x){sqrt(sum((x-centroidA)^2))-sqrt(sum((x-centroidB)^2))<0}))
+
+result[test_group]<-(misclassifiedA+misclassifiedB)/(ncol(testA)+ncol(testB))
+
+}
+mean(result)
+sd(result)
+```
+
+
+
+```{r}
+
+#  First 50 genes, 3-fold cross-validation -
+her2_lumA <- read.delim("C:/Users/djghosh/Desktop/her2_lumA.txt", header=FALSE)
+View(her2_lumA)
+file <- "her2_lumA.txt"
+first50 <- c('ARHGEF10L','HIF3A','RNF17','RNF10','RNF11','RNF13','GTF2IP1','REM1','MTVR2','RTN4RL2','C16orf13','C16orf11','FGFR1OP2','TSKS','ATRX','PMM2','ASS1','NCBP1','ZNF709','ZNF708','RBM14','NCBP2','DISC1','CAMK1','RPL37','SPR','ZNF700','ZNF707','CAMK4','ZNF704','LOC339240','GOLGA6B','RNF115','RNF112','ZC3H14','SPN','HMGCLL1','NACAP1','LRRTM1','GRIN1','RBMY1A3P','DHX8','DHX9','LOC441204','TCOF1','LRRTM3','NUP98','XPC','SLC12A2','GRINA')
+nfold <- 3
+
+header <- scan(file, nlines = 1, what = character())
+data <- read.table(file, skip = 2, header = FALSE, sep = "\t", quote = "", check.names=FALSE)
+names(data) <- header
+
+header2 <- scan(file, skip = 1, nlines = 1, what = character())
+
+LumA <- data[,header2=='LumA']
+Her2 <- data[,header2=='Her2']
+
+LumA <- data[data$id %in% first50,header2=='LumA']
+Her2<-data[data$id%in%first50,header2=='Her2']
+
+LumA_groups <- split(sample(colnames(LumA)), 1+(seq_along(colnames(LumA)) %% nfold))
+Her2_groups<- split(sample(colnames(Her2)), 1+(seq_along(colnames(Her2)) %% nfold))
+
+result <- array()
+
+for (test_group in 1:nfold) {
+testA<-LumA[,colnames(LumA)%in%unlist(LumA_groups[test_group])]
+testB<-Her2[,colnames(Her2)%in%unlist(Her2_groups[test_group])]
+
+trainingA<-LumA[,!(colnames(LumA)%in%unlist(LumA_groups[test_group]))]
+trainingB<-Her2[,!(colnames(Her2)%in%unlist(Her2_groups[test_group]))]
+
+centroidA<-rowMeans(trainingA)
+centroidB<-rowMeans(trainingB)
+
+misclassifiedA <- sum(sapply(testA, function(x){sqrt(sum((x-centroidA)^2))-sqrt(sum((x-centroidB)^2))>0 }))
+misclassifiedB<-sum(sapply(testB,function(x){sqrt(sum((x-centroidA)^2))-sqrt(sum((x-centroidB)^2))<0}))
+
+result[test_group]<-(misclassifiedA+misclassifiedB)/(ncol(testA)+ncol(testB))
+
+}
+mean(result)
+sd(result)
+```
+
+
+
+```{r}
+#  First 50 genes 10-fold cross validation 
+
+her2_lumA <- read.delim("C:/Users/djghosh/Desktop/her2_lumA.txt", header=FALSE)
+View(her2_lumA)
+file <- "her2_lumA.txt"
+first50 <- c('ARHGEF10L','HIF3A','RNF17','RNF10','RNF11','RNF13','GTF2IP1','REM1','MTVR2','RTN4RL2','C16orf13','C16orf11','FGFR1OP2','TSKS','ATRX','PMM2','ASS1','NCBP1','ZNF709','ZNF708','RBM14','NCBP2','DISC1','CAMK1','RPL37','SPR','ZNF700','ZNF707','CAMK4','ZNF704','LOC339240','GOLGA6B','RNF115','RNF112','ZC3H14','SPN','HMGCLL1','NACAP1','LRRTM1','GRIN1','RBMY1A3P','DHX8','DHX9','LOC441204','TCOF1','LRRTM3','NUP98','XPC','SLC12A2','GRINA')
+nfold <- 10
+
+header <- scan(file, nlines = 1, what = character())
+data <- read.table(file, skip = 2, header = FALSE, sep = "\t", quote = "", check.names=FALSE)
+names(data) <- header
+
+header2 <- scan(file, skip = 1, nlines = 1, what = character())
+
+LumA <- data[,header2=='LumA']
+Her2 <- data[,header2=='Her2']
+
+LumA <- data[data$id %in% first50,header2=='LumA']
+Her2<-data[data$id%in%first50,header2=='Her2']
+
+LumA_groups <- split(sample(colnames(LumA)), 1+(seq_along(colnames(LumA)) %% nfold))
+Her2_groups<- split(sample(colnames(Her2)), 1+(seq_along(colnames(Her2)) %% nfold))
+
+result <- array()
+
+for (test_group in 1:nfold) {
+testA<-LumA[,colnames(LumA)%in%unlist(LumA_groups[test_group])]
+testB<-Her2[,colnames(Her2)%in%unlist(Her2_groups[test_group])]
+
+trainingA<-LumA[,!(colnames(LumA)%in%unlist(LumA_groups[test_group]))]
+trainingB<-Her2[,!(colnames(Her2)%in%unlist(Her2_groups[test_group]))]
+
+centroidA<-rowMeans(trainingA)
+centroidB<-rowMeans(trainingB)
+
+misclassifiedA <- sum(sapply(testA, function(x){sqrt(sum((x-centroidA)^2))-sqrt(sum((x-centroidB)^2))>0 }))
+misclassifiedB<-sum(sapply(testB,function(x){sqrt(sum((x-centroidA)^2))-sqrt(sum((x-centroidB)^2))<0}))
+
+result[test_group]<-(misclassifiedA+misclassifiedB)/(ncol(testA)+ncol(testB))
+
+}
+mean(result)
+sd(result)
+
+```
